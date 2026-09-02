@@ -19,21 +19,28 @@ Dieses Repository enthält das offizielle Home Assistant Add-on für **[LX Famil
 
 ## Installation in Home Assistant
 
-Es gibt zwei Wege, das Add-on in Home Assistant zu installieren:
-
 ### Weg A: Als Add-on Repository (Empfohlen)
 
-1. Lade dieses Repository auf GitHub/GitLab hoch (z. B. in deinen eigenen Account).
-2. Öffne Home Assistant und navigiere zu:
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FCs3ries%2Flx-family-ha-addon)
+
+**1-Klick-Installation:**
+Klicke einfach auf den obigen Button, um dieses Repository direkt zu deinem Home Assistant hinzuzufügen.
+
+**Oder manuell hinzufügen:**
+1. Öffne Home Assistant und navigiere zu:
    **Einstellungen** → **Add-ons** → **Add-on Store** (unten rechts).
-3. Klicke oben rechts auf das Drei-Punkte-Menü (⋮) und wähle **Repositories**.
-4. Füge die URL deines Repositories hinzu und klicke auf **Hinzufügen**.
-5. Lade die Seite neu. Das Add-on **LX Family** erscheint in der Liste.
-6. Klicke auf **LX Family** und anschließend auf **Installieren**.
+2. Klicke oben rechts auf das Drei-Punkte-Menü (⋮) und wähle **Repositories**.
+3. Füge folgende Repository-URL ein und klicke auf **Hinzufügen**:
+   ```
+   https://github.com/Cs3ries/lx-family-ha-addon
+   ```
+4. Das Repository **LX Family Add-ons** erscheint nun in deiner Liste.
+5. Suche im Add-on Store nach **LX Family**, klicke darauf und wähle **Installieren**.
 
 ---
 
-### Weg B: Lokale Installation (Direkt auf dem Server ohne Git)
+### Weg B: Lokale Installation (Manuell ohne Git)
+*(Nur nötig für eigene Anpassungen, lokale Entwicklung oder Offline-Umgebungen)*
 
 1. Verbinde dich per **Samba Share**, **SSH** oder dem **Studio Code Server Add-on** mit deinem Home Assistant.
 2. Kopiere den Ordner `lx-family` aus diesem Repository direkt in das Home Assistant Verzeichnis `/addons/`:
@@ -82,24 +89,22 @@ calendar_allow_private_hosts: true # Zugriff auf lokale CalDAV/Nextcloud-Server 
 
 ---
 
-## Updates aus dem Original-Repository
+## Automatische Updates
 
-Dieses Repository ist so konfiguriert, dass es immer auf dem neuesten Stand von [laxxx-lab/lx-family-planner](https://github.com/laxxx-lab/lx-family-planner) bleibt:
+Dieses Repository wird kontinuierlich auf dem neuesten Stand von [laxxx-lab/lx-family-planner](https://github.com/laxxx-lab/lx-family-planner) gehalten.
 
-### 1. Vollautomatische Updates via GitHub Actions (Empfohlen)
-- Ein automatisierter Cron-Job (`.github/workflows/update.yml`) prüft **einmal täglich (alle 24 Stunden)** auf neue Releases im Original-Repository.
-- Sobald `laxxx-lab` eine neue Version veröffentlicht (z. B. `1.21.0`), aktualisiert die GitHub Action automatisch `config.yaml`, `build.yaml` und das `CHANGELOG.md` und committet die Änderung in dein Repository.
-- **Vollautomatisches Update in Home Assistant aktivieren:**
-  1. Gehe in Home Assistant auf die Add-on Detailseite von **LX Family**.
-  2. Aktiviere den Schalter **"Automatische Aktualisierungen"** (Auto update).
-  3. Home Assistant lädt und installiert neue Versionen nun vollautomatisch im Hintergrund, ohne dass du etwas tun musst!
+### Für Anwender: Automatische Updates in Home Assistant aktivieren
+1. Gehe in Home Assistant auf die Add-on Detailseite von **LX Family**.
+2. Aktiviere den Schalter **"Automatische Aktualisierungen"** (Auto update).
+3. Home Assistant lädt und installiert neue Versionen vollautomatisch im Hintergrund, sobald sie veröffentlicht werden. Deine Familiendaten in `/data` bleiben dabei unverändert erhalten.
 
-### 2. Manuelles Update über das mitgelieferte Skript
-Wenn du das Add-on lokal betreibst oder manuell prüfen möchtest, kannst du jederzeit folgendes Skript im Terminal ausführen:
+---
+
+### Für Maintainer & Forks: Wie Updates funktionieren
+- **Automatisierter Cron-Job (GitHub Actions):** Ein täglicher Workflow (`.github/workflows/update.yml`) prüft automatisch auf neue Releases im Original-Repository (`laxxx-lab/lx-family-planner`) und aktualisiert die Konfigurationsdateien in diesem Repository.
+- **Manuelles Update-Skript:** Für lokale Entwicklungen oder manuelle Prüfungen kann jederzeit `./update.sh` im Terminal ausgeführt werden:
 
 ```bash
 ./update.sh
 ```
-
-Das Skript vergleicht deine installierte Version mit dem neuesten Release auf GitHub, aktualisiert die Konfigurationsdateien und zeigt dir die Git-Befehle zum Committen an.
 
