@@ -55,3 +55,11 @@ LX Family kann deine Home Assistant Entitäten (Lichter, Schalter, Sensoren) dir
 
 LX Family verfügt über eine native Android-App (APK) sowie vollen PWA-Support (im mobilen Browser auf "Zum Startbildschirm hinzufügen" tippen).
 In der Android-App trägst du einfach die Adresse `http://<DEINE-HA-IP>:3001` (bzw. deine externe Domain bei Fernzugriff) ein.
+
+---
+
+## Automatische Updates
+
+Aktiviere in den Add-on-Einstellungen in Home Assistant den Schalter **"Automatische Aktualisierungen"** (Auto update).
+Sobald im Original-Repository (`laxxx-lab/lx-family-planner`) eine neue Version veröffentlicht wird, aktualisiert der GitHub Actions Workflow dieses Repositories die Versionsnummer, und Home Assistant führt das Update vollautomatisch durch. Deine Daten in `/data` bleiben dabei unverändert erhalten.
+

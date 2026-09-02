@@ -1,0 +1,71 @@
+name: Automatische Updates aus Original-Repository
+
+on:
+  schedule:
+    # Prüft alle 6 Stunden auf neue Versionen im Original-Repository
+    - cron: "0 */6 * * *"
+  # Erlaubt manuelles Auslösen der Prüfung im GitHub Actions Tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-upstream-update:
+    name: Prüfe Original-Repo auf neue Releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add-on Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Neueste Version von laxxx-lab/lx-family-planner ermitteln
+        id: upstream
+        run: |
+          LATEST_JSON=$(curl -sL https://api.github.com/repos/laxxx-lab/lx-family-planner/releases/latest)
+          LATEST_TAG=$(echo "$LATEST_JSON" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Fehler: Konnte tag_name nicht ermitteln."
+            exit 1
+          fi
+
+          LATEST_VERSION="${LATEST_TAG#v}"
+          CURRENT_VERSION=$(grep '^version:' lx-family/config.yaml | awk '{print $2}' | tr -d '"')
+
+          echo "Neueste Version im Original-Repo: ${LATEST_VERSION}"
+          echo "Aktuelle Version im Add-on:        ${CURRENT_VERSION}"
+
+          echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+          echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Add-on aktualisieren und committen
+        if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version
+        run: |
+          VERSION="${{ steps.upstream.outputs.latest_version }}"
+          echo "Neue Version erkannt: ${VERSION}. Aktualisiere Dateien..."
+
+          # config.yaml aktualisieren
+          sed -i "s/^version:.*/version: \"${VERSION}\"/" lx-family/config.yaml
+
+          # build.yaml aktualisieren (Multi-Arch Tag)
+          sed -i "s|ghcr.io/laxxx-lab/lx-family-planner:.*|ghcr.io/laxxx-lab/lx-family-planner:${VERSION}|g" lx-family/build.yaml
+
+          # CHANGELOG.md aktualisieren
+          DATE=$(date +'%Y-%m-%d')
+          TEMP_FILE=$(mktemp)
+          {
+            echo "## ${VERSION} (${DATE})"
+            echo ""
+            echo "- Automatische Aktualisierung auf LX Family ${VERSION} aus dem Original-Repository (laxxx-lab/lx-family-planner)."
+            echo ""
+            cat lx-family/CHANGELOG.md
+          } > "$TEMP_FILE"
+          mv "$TEMP_FILE" lx-family/CHANGELOG.md
+
+          # Git Commit & Push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lx-family/config.yaml lx-family/build.yaml lx-family/CHANGELOG.md
+          git commit -m "chore(release): update LX Family to ${VERSION} from upstream"
+          git push
+          echo "Erfolgreich gepusht: LX Family v${VERSION}"

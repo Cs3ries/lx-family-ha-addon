@@ -79,3 +79,27 @@ calendar_allow_private_hosts: true # Zugriff auf lokale CalDAV/Nextcloud-Server 
 2. Klicke auf **Web-UI öffnen** (oder rufe `http://<HOME-ASSISTANT-IP>:3001` im Browser auf).
 3. Folge dem Einrichtungsassistenten, erstelle deine Familie und lege das Master-Passwort fest.
 4. Viel Freude mit eurem privaten Family OS!
+
+---
+
+## Updates aus dem Original-Repository
+
+Dieses Repository ist so konfiguriert, dass es immer auf dem neuesten Stand von [laxxx-lab/lx-family-planner](https://github.com/laxxx-lab/lx-family-planner) bleibt:
+
+### 1. Vollautomatische Updates via GitHub Actions (Empfohlen)
+- Ein automatisierter Cron-Job (`.github/workflows/update.yml`) prüft **alle 6 Stunden** auf neue Releases im Original-Repository.
+- Sobald `laxxx-lab` eine neue Version veröffentlicht (z. B. `1.21.0`), aktualisiert die GitHub Action automatisch `config.yaml`, `build.yaml` und das `CHANGELOG.md` und committet die Änderung in dein Repository.
+- **Vollautomatisches Update in Home Assistant aktivieren:**
+  1. Gehe in Home Assistant auf die Add-on Detailseite von **LX Family**.
+  2. Aktiviere den Schalter **"Automatische Aktualisierungen"** (Auto update).
+  3. Home Assistant lädt und installiert neue Versionen nun vollautomatisch im Hintergrund, ohne dass du etwas tun musst!
+
+### 2. Manuelles Update über das mitgelieferte Skript
+Wenn du das Add-on lokal betreibst oder manuell prüfen möchtest, kannst du jederzeit folgendes Skript im Terminal ausführen:
+
+```bash
+./update.sh
+```
+
+Das Skript vergleicht deine installierte Version mit dem neuesten Release auf GitHub, aktualisiert die Konfigurationsdateien und zeigt dir die Git-Befehle zum Committen an.
+
