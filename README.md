@@ -87,7 +87,7 @@ calendar_allow_private_hosts: true # Zugriff auf lokale CalDAV/Nextcloud-Server 
 Dieses Repository ist so konfiguriert, dass es immer auf dem neuesten Stand von [laxxx-lab/lx-family-planner](https://github.com/laxxx-lab/lx-family-planner) bleibt:
 
 ### 1. Vollautomatische Updates via GitHub Actions (Empfohlen)
-- Ein automatisierter Cron-Job (`.github/workflows/update.yml`) prüft **alle 6 Stunden** auf neue Releases im Original-Repository.
+- Ein automatisierter Cron-Job (`.github/workflows/update.yml`) prüft **einmal täglich (alle 24 Stunden)** auf neue Releases im Original-Repository.
 - Sobald `laxxx-lab` eine neue Version veröffentlicht (z. B. `1.21.0`), aktualisiert die GitHub Action automatisch `config.yaml`, `build.yaml` und das `CHANGELOG.md` und committet die Änderung in dein Repository.
 - **Vollautomatisches Update in Home Assistant aktivieren:**
   1. Gehe in Home Assistant auf die Add-on Detailseite von **LX Family**.

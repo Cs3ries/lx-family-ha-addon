@@ -2,8 +2,8 @@ name: Automatische Updates aus Original-Repository
 
 on:
   schedule:
-    # Prüft alle 6 Stunden auf neue Versionen im Original-Repository
-    - cron: "0 */6 * * *"
+    # Prüft einmal täglich (alle 24 Stunden) um 04:00 Uhr UTC auf neue Versionen
+    - cron: "0 4 * * *"
   # Erlaubt manuelles Auslösen der Prüfung im GitHub Actions Tab
   workflow_dispatch:
 
