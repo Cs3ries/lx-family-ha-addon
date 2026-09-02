@@ -1,0 +1,14 @@
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*~
+
+# Persistent and local runtime files
+options.json
+.lx-family-app-secret
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+backups/
+data/
