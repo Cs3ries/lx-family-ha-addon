@@ -82,8 +82,8 @@ echo "[INFO] LX Family gestartet auf Port ${PORT} (Sprache: ${APP_LANGUAGE}, Zei
     latest_ver=$(curl -sL --max-time 3 "https://raw.githubusercontent.com/laxxx-lab/lx-family-planner/main/package.json" 2>/dev/null | grep -m1 '"version":' | sed -E 's/.*"version":[[:space:]]*"([^"]+)".*/\1/' || true)
   fi
   if [ -n "$latest_ver" ]; then
-    current_ver="1.20.0"
-    if [ "$latest_ver" != "$current_ver" ]; then
+    current_ver=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
+    if [ -n "$current_ver" ] && [ "$latest_ver" != "$current_ver" ]; then
       echo "[HINWEIS] Ein Update für LX Family ist verfügbar: v${latest_ver} (aktuell: v${current_ver}). Aktualisiere das Add-on über Home Assistant!"
     fi
   fi
