@@ -6,8 +6,8 @@
 
 ## Erste Schritte
 
-1. **Add-on starten:** Klicke nach der Installation auf **Starten**.
-2. **Web-UI öffnen:** Klicke auf **Web-UI öffnen** oder öffne im Browser `http://<DEINE-HA-IP>:3001`.
+1. **Add-on starten:** Klicke nach der Installation auf **Starten**. Aktiviere optional **In Seitenleiste anzeigen**.
+2. **Web-UI / Ingress öffnen:** Klicke in der Seitenleiste auf **Familienplaner** (Ingress) oder auf **Web-UI öffnen**. Für externe Apps oder direkten LAN-Zugriff ist das Webinterface auch direkt unter `http://<DEINE-HA-IP>:3001` erreichbar.
 3. **Erste Familie anlegen:** Beim ersten Aufruf wirst du durch die Ersteinrichtung geführt und legst deine Familie sowie das Master-Passwort an.
 4. **Profile erstellen:** Lege Profile für Eltern, Kinder, Großeltern und ggf. Haustiere an.
 
@@ -19,7 +19,7 @@ Unter dem Reiter **Konfiguration** können folgende Einstellungen angepasst werd
 
 | Option | Standard | Beschreibung |
 |---|---|---|
-| `app_secret` | *(leer)* | Ein mindestens 32 Zeichen langer Schlüssel zur Verschlüsselung von Sitzungen und Passwörtern. **Empfehlung:** Leer lassen – das Add-on generiert automatisch einen sicheren Schlüssel und speichert ihn dauerhaft im Add-on-Speicher. |
+| `app_secret` | *(leer)* | Ein mindestens 32 Zeichen langer Schlüssel zur Verschlüsselung von Sitzungen und Passwörtern. **Empfehlung:** Leer lassen – das Add-on generiert automatisch einen sicheren 48-Byte-Schlüssel in `/data/.app_secret` und bewahrt ihn dauerhaft im Add-on-Speicher auf. |
 | `registration_mode` | `first-family` | Registrierungsmodus für neue Familien:<br>• `first-family`: Nur die allererste Familie darf sich registrieren, danach wird die Registrierung geschlossen.<br>• `invite`: Neue Familien benötigen einen Einladungscode (`registration_invite_code`).<br>• `closed`: Keine weiteren Registrierungen möglich.<br>• `open`: Offene Registrierung. |
 | `registration_invite_code` | *(leer)* | Einladungscode, falls `registration_mode` auf `invite` steht. |
 | `public_family_directory` | `false` | Zeigt Familiennamen auf der Anmeldeseite öffentlich an. Sollte im Normalfall deaktiviert bleiben. |
@@ -33,7 +33,7 @@ Unter dem Reiter **Konfiguration** können folgende Einstellungen angepasst werd
 
 ## Daten & Sicherungen
 
-- Alle Familiendaten (SQLite-Datenbank, Sicherungen, Einstellungen) werden im persistenten Home Assistant Speicherbereich `/data` abgelegt.
+- Alle Familiendaten (SQLite-Datenbank, Sicherungen, Einstellungen und Secrets) werden im persistenten Home Assistant Speicherbereich `/data` abgelegt.
 - **Home Assistant Backups:** Wenn du in Home Assistant ein Backup (Vollsicherung oder Add-on-Sicherung) erstellst, werden alle Familiendaten automatisch mitgesichert!
 - Interne Backups von LX Family werden im Unterordner `/data/backups` abgelegt und können über die **Elternzentrale** in LX Family verwaltet werden.
 
@@ -58,8 +58,9 @@ In der Android-App trägst du einfach die Adresse `http://<DEINE-HA-IP>:3001` (b
 
 ---
 
-## Automatische Updates
+## Automatische Updates & Ingress-Sicherheit
 
 Aktiviere in den Add-on-Einstellungen in Home Assistant den Schalter **"Automatische Aktualisierungen"** (Auto update).
-Sobald im Original-Repository (`laxxx-lab/lx-family-planner`) eine neue Version veröffentlicht wird, aktualisiert der GitHub Actions Workflow dieses Repositories die Versionsnummer, und Home Assistant führt das Update vollautomatisch durch. Deine Daten in `/data` bleiben dabei unverändert erhalten.
+Sobald im Original-Repository (`laxxx-lab/lx-family-planner`) eine neue Version veröffentlicht wird, aktualisiert der GitHub Actions Workflow dieses Repositories die Version, und Home Assistant führt das Update vollautomatisch durch.
 
+Dank des integrierten Nginx Ingress Reverse Proxies werden alle Ingress-Pfade dynamisch zur Laufzeit umgeschrieben. Upstream-Codeänderungen oder neue Web-Assets funktionieren sofort und ohne manuelles Eingreifen, während deine Daten in `/data` dauerhaft sicher bleiben.

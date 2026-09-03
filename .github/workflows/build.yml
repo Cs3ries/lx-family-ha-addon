@@ -1,0 +1,54 @@
+name: Build & Test Add-on
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'lx-family/**'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'lx-family/**'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Test Multi-Arch Build (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, aarch64]
+        include:
+          - arch: amd64
+            platform: linux/amd64
+          - arch: aarch64
+            platform: linux/arm64
+    steps:
+      - name: Add-on Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Ermittle Basis-Version
+        id: version
+        run: |
+          CURRENT_VERSION=$(grep '^version:' lx-family/config.yaml | awk '{print $2}' | tr -d '"')
+          echo "Add-on Version: ${CURRENT_VERSION}"
+          echo "version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Baue Docker-Image für ${{ matrix.arch }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./lx-family
+          file: ./lx-family/Dockerfile
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            BUILD_FROM=ghcr.io/laxxx-lab/lx-family-planner:${{ steps.version.outputs.version }}
+          push: false
+          tags: lx-family:${{ matrix.arch }}

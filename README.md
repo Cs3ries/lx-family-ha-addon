@@ -9,10 +9,11 @@ Dieses Repository enthält das offizielle Home Assistant Add-on für **[LX Famil
 ## Funktionen des Add-ons
 
 - 🚀 **Schnelle Installation:** Verwendet das offizielle Multi-Arch Docker-Image (`ghcr.io/laxxx-lab/lx-family-planner:latest`), kompatibel mit **ARM64 / aarch64** (Raspberry Pi 4/5, HA Green/Yellow) und **x86_64 / amd64** (Intel NUC, Proxmox, VMs).
+- 🌐 **Nahtlose Ingress-Integration:** Erscheint als **"Familienplaner"** direkt in der Home Assistant Seitenleiste. Ein integrierter Nginx Reverse Proxy fängt Ingress-Anfragen auf Port 3001 ab und schreibt absolute Web- und API-Pfade update-sicher via `sub_filter` um.
+- 📱 **Direkter Zugriff & Android-App:** Port `3001` steht weiterhin für den direkten Aufruf im lokalen Netzwerk sowie die Verbindung mit der nativen Android-App (APK) zur Verfügung.
 - 💾 **Sichere Daten-Persistenz:** SQLite-Datenbank, Sicherungen und Secrets liegen im persistenten `/data`-Speicher von Home Assistant und werden bei Add-on-Updates nicht überschrieben.
-- 🛡️ **Automatische Sicherungen:** Home Assistant Backups sichern die Familiendatenbank und Backups automatisch mit.
-- 🔑 **Automatisches Secret Management:** Generiert beim ersten Start automatisch ein sicheres 48-Byte `APP_SECRET` und bewahrt es dauerhaft auf.
-- 🌐 **Webinterface-Integration:** Direkter "Web-UI öffnen"-Button in Home Assistant auf Port `3001`.
+- 🛡️ **Automatische Sicherungen:** Home Assistant Backups sichern die Familiendatenbank und Sicherungen automatisch mit.
+- 🔑 **Automatisches Secret Management:** Generiert beim ersten Start automatisch ein sicheres 48-Byte `APP_SECRET` in `/data/.app_secret` und bewahrt es dauerhaft auf.
 - 🏠 **Home Assistant Integration:** Geräte und Entitäten aus Home Assistant können direkt in LX Family eingebunden werden (über die Elternzentrale).
 
 ---
@@ -50,6 +51,10 @@ Klicke einfach auf den obigen Button, um dieses Repository direkt zu deinem Home
    ├── build.yaml
    ├── Dockerfile
    ├── run.sh
+   ├── rootfs/
+   │   └── etc/
+   │       └── nginx/
+   │           └── nginx.conf
    ├── icon.png
    ├── logo.png
    ├── DOCS.md
@@ -67,7 +72,7 @@ Klicke einfach auf den obigen Button, um dieses Repository direkt zu deinem Home
 Nach der Installation findest du unter dem Reiter **Konfiguration** folgende Optionen:
 
 ```yaml
-app_secret: ""                     # Leer lassen für automatische Generierung
+app_secret: ""                     # Leer lassen für automatische Generierung in /data/.app_secret
 registration_mode: "first-family"  # first-family, invite, open oder closed
 registration_invite_code: ""       # Code bei registration_mode: invite
 public_family_directory: false     # Familiennamen auf Loginseite anzeigen
@@ -82,8 +87,8 @@ calendar_allow_private_hosts: true # Zugriff auf lokale CalDAV/Nextcloud-Server 
 
 ## Erste Schritte nach dem Start
 
-1. Klicke auf **Starten** und aktiviere optional **Bei Systemstart ausführen** sowie **Immer neu starten**.
-2. Klicke auf **Web-UI öffnen** (oder rufe `http://<HOME-ASSISTANT-IP>:3001` im Browser auf).
+1. Klicke auf **Starten** und aktiviere optional **In Seitenleiste anzeigen**, **Bei Systemstart ausführen** sowie **Immer neu starten**.
+2. Öffne **Familienplaner** direkt in der linken Seitenleiste von Home Assistant (Ingress) oder klicke auf **Web-UI öffnen**.
 3. Folge dem Einrichtungsassistenten, erstelle deine Familie und lege das Master-Passwort fest.
 4. Viel Freude mit eurem privaten Family OS!
 
@@ -101,10 +106,9 @@ Dieses Repository wird kontinuierlich auf dem neuesten Stand von [laxxx-lab/lx-f
 ---
 
 ### Für Maintainer & Forks: Wie Updates funktionieren
-- **Automatisierter Cron-Job (GitHub Actions):** Ein täglicher Workflow (`.github/workflows/update.yml`) prüft automatisch auf neue Releases im Original-Repository (`laxxx-lab/lx-family-planner`) und aktualisiert die Konfigurationsdateien in diesem Repository.
+- **Automatisierter Cron-Job (GitHub Actions):** Ein täglicher Workflow (`.github/workflows/update.yml`) prüft automatisch auf neue Releases im Original-Repository (`laxxx-lab/lx-family-planner`), testet den Multi-Arch Build inklusive Nginx Ingress Proxy Schicht und aktualisiert die Konfigurationsdateien in diesem Repository.
 - **Manuelles Update-Skript:** Für lokale Entwicklungen oder manuelle Prüfungen kann jederzeit `./update.sh` im Terminal ausgeführt werden:
 
 ```bash
 ./update.sh
 ```
-

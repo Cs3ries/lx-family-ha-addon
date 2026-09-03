@@ -9,11 +9,17 @@ arch:
 startup: "application"
 boot: "auto"
 init: false
-webui: "http://[HOST]:[PORT:3001]"
+ingress: true
+ingress_port: 3001
+panel_icon: "mdi:calendar-heart"
+panel_title: "Familienplaner"
+homeassistant_api: true
+map:
+  - data:rw
 ports:
   3001/tcp: 3001
 ports_description:
-  3001/tcp: "Web-Oberfläche"
+  3001/tcp: "Direkter Zugriff (z. B. für native Android-App)"
 options:
   app_secret: ""
   registration_mode: "first-family"

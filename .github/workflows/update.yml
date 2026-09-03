@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   check-upstream-update:
-    name: Prüfe Original-Repo auf neue Releases
+    name: Prüfe Original-Repo auf neue Releases & Baue Add-on
     runs-on: ubuntu-latest
     steps:
       - name: Add-on Repository auschecken
@@ -38,7 +38,7 @@ jobs:
           echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Add-on aktualisieren und committen
+      - name: Add-on Dateien aktualisieren
         if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version
         run: |
           VERSION="${{ steps.upstream.outputs.latest_version }}"
@@ -57,15 +57,39 @@ jobs:
             echo "## ${VERSION} (${DATE})"
             echo ""
             echo "- Automatische Aktualisierung auf LX Family ${VERSION} aus dem Original-Repository (laxxx-lab/lx-family-planner)."
+            echo "- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv."
             echo ""
             cat lx-family/CHANGELOG.md
           } > "$TEMP_FILE"
           mv "$TEMP_FILE" lx-family/CHANGELOG.md
 
-          # Git Commit & Push
+      - name: Set up QEMU
+        if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version || github.event_name == 'workflow_dispatch'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version || github.event_name == 'workflow_dispatch'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Multi-Arch Image mit Ingress-Proxy Schicht bauen (Buildx)
+        if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./lx-family
+          file: ./lx-family/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BUILD_FROM=ghcr.io/laxxx-lab/lx-family-planner:${{ steps.upstream.outputs.latest_version }}
+          push: false
+          tags: lx-family:latest
+
+      - name: Git Commit & Push
+        if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version
+        run: |
+          VERSION="${{ steps.upstream.outputs.latest_version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add lx-family/config.yaml lx-family/build.yaml lx-family/CHANGELOG.md
-          git commit -m "chore(release): update LX Family to ${VERSION} from upstream"
+          git commit -m "chore(release): update LX Family to ${VERSION} from upstream (ingress-ready)"
           git push
           echo "Erfolgreich gepusht: LX Family v${VERSION}"

@@ -1,12 +1,12 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 
 echo "[INFO] Starte LX Family Home Assistant Add-on..."
 
-# Persistent data directory
-mkdir -p /data/backups
+# 1. Sicherstellen des persistenten Home Assistant Speicherbereichs (/data)
+mkdir -p /data/backups /run /var/log/nginx /var/lib/nginx/body
 
-# Parse options and export environment variables using Node.js
+# 2. Add-on-Optionen parsen & persistentes APP_SECRET verwalten via Node.js
 ENV_FILE="/tmp/ha_options.env"
 
 node - << 'EOF' > "$ENV_FILE"
@@ -22,22 +22,30 @@ try {
   console.error('[WARN] Konnte /data/options.json nicht lesen:', err.message);
 }
 
-// Secret handling
+// Secret-Handling: Optionen -> /data/.app_secret -> /data/.lx-family-app-secret -> Neu-Generierung
 let secret = (options.app_secret || '').trim();
-const secretFile = '/data/.lx-family-app-secret';
+const secretFile = '/data/.app_secret';
+const legacySecretFile = '/data/.lx-family-app-secret';
+
 if (!secret) {
   if (fs.existsSync(secretFile)) {
     secret = fs.readFileSync(secretFile, 'utf8').trim();
+  } else if (fs.existsSync(legacySecretFile)) {
+    secret = fs.readFileSync(legacySecretFile, 'utf8').trim();
+    try {
+      fs.writeFileSync(secretFile, secret, { mode: 0o600 });
+    } catch {}
   } else {
     secret = crypto.randomBytes(48).toString('hex');
     fs.writeFileSync(secretFile, secret, { mode: 0o600 });
-    console.error('[INFO] Neues dauerhaftes APP_SECRET in /data generiert.');
+    console.error('[INFO] Neues dauerhaftes APP_SECRET in /data/.app_secret generiert.');
   }
 }
 
+// Upstream Node-App lauscht intern auf Port 3000; Nginx übernimmt Ingress auf Port 3001
 const envs = {
   NODE_ENV: 'production',
-  PORT: '3001',
+  PORT: '3000',
   DATABASE_FILE: '/data/family_planner.sqlite',
   LEGACY_DATABASE_FILE: '/data/family_db.json',
   BACKUP_DIRECTORY: '/data/backups',
@@ -62,19 +70,24 @@ EOF
 . "$ENV_FILE"
 rm -f "$ENV_FILE"
 
-# Prepare permissions for node user (PUID 1000, PGID 1000)
+# 3. Berechtigungen & Symlinks für persistente Daten
 data_uid="${PUID:-1000}"
 data_gid="${PGID:-1000}"
 chown -R "$data_uid:$data_gid" /data 2>/dev/null || true
 
-# Symlink into /app/data so any internal references resolve correctly
+# Symlink-Sicherung in /app/data für interne App-Verweise
 mkdir -p /app/data
 ln -sf /data/family_planner.sqlite /app/data/family_planner.sqlite 2>/dev/null || true
-ln -sf /data/.lx-family-app-secret /app/data/.lx-family-app-secret 2>/dev/null || true
+ln -sf /data/family_db.json /app/data/family_db.json 2>/dev/null || true
+ln -sf /data/backups /app/data/backups 2>/dev/null || true
+ln -sf /data/.app_secret /app/data/.app_secret 2>/dev/null || true
+ln -sf /data/.app_secret /app/data/.lx-family-app-secret 2>/dev/null || true
+ln -sf /data/.app_secret /data/.lx-family-app-secret 2>/dev/null || true
+chown -R "$data_uid:$data_gid" /app/data 2>/dev/null || true
 
-echo "[INFO] LX Family gestartet auf Port ${PORT} (Sprache: ${APP_LANGUAGE}, Zeitzone: ${TZ}, Registrierung: ${REGISTRATION_MODE})"
+echo "[INFO] LX Family Backend konfiguriert für internen Port ${PORT} (Sprache: ${APP_LANGUAGE}, Zeitzone: ${TZ}, Registrierung: ${REGISTRATION_MODE})"
 
-# Asynchrone Prüfung auf neuere Versionen aus dem Original-Repository
+# 4. Asynchrone Prüfung auf neuere Versionen aus dem Original-Repository
 (
   latest_tag=$(curl -sL --max-time 3 "https://api.github.com/repos/laxxx-lab/lx-family-planner/releases/latest" 2>/dev/null | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || true)
   latest_ver="${latest_tag#v}"
@@ -89,8 +102,43 @@ echo "[INFO] LX Family gestartet auf Port ${PORT} (Sprache: ${APP_LANGUAGE}, Zei
   fi
 ) &
 
+# 5. Multi-Process Service Management (Nginx Ingress Reverse Proxy + Node Backend)
+NGINX_PID=""
+NODE_PID=""
+
+cleanup() {
+  trap - SIGTERM SIGINT SIGQUIT
+  echo "[INFO] Beende Add-on Dienste sauber..."
+  if [ -n "$NODE_PID" ] && kill -0 "$NODE_PID" 2>/dev/null; then
+    kill -TERM "$NODE_PID" 2>/dev/null || true
+  fi
+  if [ -n "$NGINX_PID" ] && kill -0 "$NGINX_PID" 2>/dev/null; then
+    nginx -s quit 2>/dev/null || kill -TERM "$NGINX_PID" 2>/dev/null || true
+  fi
+  wait "$NODE_PID" 2>/dev/null || true
+  wait "$NGINX_PID" 2>/dev/null || true
+}
+
+trap cleanup SIGTERM SIGINT SIGQUIT
+
+# Starte Nginx Reverse Proxy auf Port 3001
+echo "[INFO] Starte Nginx Ingress Reverse Proxy auf Port 3001..."
+nginx -g "daemon off;" &
+NGINX_PID=$!
+
+# Starte Upstream Node Backend auf Port 3000
+echo "[INFO] Starte LX Family Node Backend..."
 if [ -x "/usr/local/bin/lx-family-entrypoint" ]; then
-  exec /usr/local/bin/lx-family-entrypoint node server.js
+  /usr/local/bin/lx-family-entrypoint node server.js &
+  NODE_PID=$!
 else
-  exec node server.js
+  node server.js &
+  NODE_PID=$!
 fi
+
+# Warte auf das Beenden eines der Prozesse
+set +e
+wait -n "$NGINX_PID" "$NODE_PID"
+EXIT_CODE=$?
+cleanup
+exit "$EXIT_CODE"
