@@ -1,3 +1,8 @@
+## 1.20.3 (2026-09-04)
+
+- Automatische Aktualisierung auf LX Family 1.20.3 aus dem Original-Repository (laxxx-lab/lx-family-planner).
+- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv.
+
 # Changelog
 
 ## 1.20.0
