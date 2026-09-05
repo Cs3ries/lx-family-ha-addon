@@ -11,8 +11,12 @@ LATEST_VERSION=""
 # 1. Versuch: GitHub API
 LATEST_JSON=$(curl -sL --max-time 5 -H "User-Agent: HA-Addon-Updater" https://api.github.com/repos/laxxx-lab/lx-family-planner/releases/latest 2>/dev/null || true)
 LATEST_TAG=$(echo "$LATEST_JSON" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || true)
+RELEASE_BODY=""
 if [ -n "$LATEST_TAG" ]; then
   LATEST_VERSION="${LATEST_TAG#v}"
+  if command -v jq >/dev/null 2>&1; then
+    RELEASE_BODY=$(echo "$LATEST_JSON" | jq -r '.body // empty' 2>/dev/null || true)
+  fi
 fi
 
 # 2. Fallback: package.json aus dem main-Branch
@@ -52,12 +56,20 @@ fi
 DATE=$(date +'%Y-%m-%d')
 TEMP_FILE=$(mktemp)
 {
+  echo "# Changelog"
+  echo ""
   echo "## ${LATEST_VERSION} (${DATE})"
   echo ""
+  if [ -n "$RELEASE_BODY" ] && [ "$RELEASE_BODY" != "null" ]; then
+    echo "### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):"
+    echo "$RELEASE_BODY" | sed -E '/^#[[:space:]]+.*(1\.[0-9]+|LX Family).*/d; s/^##[[:space:]]+/#### /'
+    echo ""
+    echo "### Add-on Änderungen:"
+  fi
   echo "- Aktualisiert auf LX Family ${LATEST_VERSION} aus dem Original-Repository (laxxx-lab/lx-family-planner)."
   echo "- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv."
   echo ""
-  cat lx-family/CHANGELOG.md
+  sed '/^# Changelog/d' lx-family/CHANGELOG.md
 } > "$TEMP_FILE"
 mv "$TEMP_FILE" lx-family/CHANGELOG.md
 

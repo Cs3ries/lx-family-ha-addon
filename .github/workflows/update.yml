@@ -35,6 +35,9 @@ jobs:
           echo "Neueste Version im Original-Repo: ${LATEST_VERSION}"
           echo "Aktuelle Version im Add-on:        ${CURRENT_VERSION}"
 
+          # Speichere Release-Notes temporär für CHANGELOG.md
+          echo "$LATEST_JSON" | jq -r '.body // empty' > /tmp/upstream_release_body.txt
+
           echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
 
@@ -54,12 +57,20 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
           TEMP_FILE=$(mktemp)
           {
+            echo "# Changelog"
+            echo ""
             echo "## ${VERSION} (${DATE})"
             echo ""
+            if [ -s /tmp/upstream_release_body.txt ]; then
+              echo "### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):"
+              cat /tmp/upstream_release_body.txt | sed -E '/^#[[:space:]]+.*(1\.[0-9]+|LX Family).*/d; s/^##[[:space:]]+/#### /'
+              echo ""
+              echo "### Add-on Änderungen:"
+            fi
             echo "- Automatische Aktualisierung auf LX Family ${VERSION} aus dem Original-Repository (laxxx-lab/lx-family-planner)."
             echo "- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv."
             echo ""
-            cat lx-family/CHANGELOG.md
+            sed '/^# Changelog/d' lx-family/CHANGELOG.md
           } > "$TEMP_FILE"
           mv "$TEMP_FILE" lx-family/CHANGELOG.md
 
