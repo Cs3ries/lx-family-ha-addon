@@ -48,7 +48,7 @@ jobs:
           sed -i "s/^version:.*/version: \"${VERSION}\"/" lx-family/config.yaml
 
           # build.yaml aktualisieren (Multi-Arch Tag)
-          sed -i "s|ghcr.io/laxxx-lab/lx-family-planner:.*|ghcr.io/laxxx-lab/lx-family-planner:${VERSION}|g" lx-family/build.yaml
+          sed -i -E "s|ghcr.io/laxxx-lab/lx-family-planner:[^\"']+|ghcr.io/laxxx-lab/lx-family-planner:${VERSION}|g" lx-family/build.yaml
 
           # CHANGELOG.md aktualisieren
           DATE=$(date +'%Y-%m-%d')
