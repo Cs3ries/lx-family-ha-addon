@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.21.1 (2026-09-06)
+
+### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
+
+#### Sicherere Verbindungen zu externen Diensten
+
+Dieses Sicherheitsupdate schließt ein DNS-Rebinding-Risiko bei externen
+Rezeptseiten. LX löst den Servernamen jetzt nur einmal auf, prüft sämtliche
+gelieferten Adressen und baut die Verbindung ausschließlich zu einer dieser
+geprüften Adressen auf.
+
+Der gleiche Schutz gilt für Kalender-Feeds, WebDAV, CalDAV und Nextcloud. Bei
+Weiterleitungen wird das Ziel vor dem Abruf erneut geprüft. Auch der besondere
+Synology-CalDAV-Kompatibilitätsweg verwendet nun die fest geprüfte Adresse.
+
+Bestehende Cloud- und Kalenderverbindungen müssen nicht neu eingerichtet
+werden. Lokale Verbindungen, die bewusst über die vorhandenen Einstellungen
+freigegeben wurden, behalten ihr bisheriges Verhalten.
+
+
+### Add-on Änderungen:
+- Automatische Aktualisierung auf LX Family 1.21.1 aus dem Original-Repository (laxxx-lab/lx-family-planner).
+- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv.
+
+
 ## 1.20.3 (2026-09-04)
 
 ### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
