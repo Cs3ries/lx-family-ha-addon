@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.21.2 (2026-09-18)
+
+### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
+
+#### Ruhiger planen, leichter bedienen
+
+- **iPhone-Eingaben bleiben erreichbar:** Quick Add und Familie verwalten
+  richten sich bei geöffneter Tastatur am sichtbaren Bildschirmbereich aus.
+  Die Seite im Hintergrund springt dabei nicht mehr.
+- **Essensplan nach Kalenderwochen:** Mit Vor, Zurück und „Diese Woche“ lassen
+  sich Wochen getrennt planen. Bestehende Mahlzeiten bleiben in der aktuellen
+  Woche sichtbar und werden beim nächsten Bearbeiten sauber zugeordnet.
+- **Bring! im Hintergrund aktuell:** Verbundene Listen werden regelmäßig,
+  fehlertolerant und ohne unnötige Aktualisierungen abgeglichen.
+- **Deutlichere Fächerfarben:** Die ausgewählte Fachfarbe ist im Stundenplan
+  schneller erkennbar, ohne die Lesbarkeit zu beeinträchtigen.
+
+Bestehende Familieninhalte, Bring!-Verbindungen, Essenspläne und Einstellungen
+bleiben erhalten.
+
+
+### Add-on Änderungen:
+- Automatische Aktualisierung auf LX Family 1.21.2 aus dem Original-Repository (laxxx-lab/lx-family-planner).
+- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv.
+
+
 ## 1.21.1 (2026-09-06)
 
 ### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):

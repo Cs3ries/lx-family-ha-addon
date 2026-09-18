@@ -1,6 +1,6 @@
 name: "LX Family"
 slug: "lx_family"
-version: "1.21.1"
+version: "1.21.2"
 description: "Privates Family OS für Kalender, Aufgaben, Essen, Einkauf und Kinderabenteuer"
 url: "https://github.com/laxxx-lab/lx-family-planner"
 arch:
