@@ -43,8 +43,10 @@ jobs:
 
       - name: Add-on Dateien aktualisieren
         if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version
+        env:
+          LATEST_VERSION: ${{ steps.upstream.outputs.latest_version }}
         run: |
-          VERSION="${{ steps.upstream.outputs.latest_version }}"
+          VERSION="${LATEST_VERSION}"
           echo "Neue Version erkannt: ${VERSION}. Aktualisiere Dateien..."
 
           # config.yaml aktualisieren
@@ -96,8 +98,10 @@ jobs:
 
       - name: Git Commit & Push
         if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version
+        env:
+          LATEST_VERSION: ${{ steps.upstream.outputs.latest_version }}
         run: |
-          VERSION="${{ steps.upstream.outputs.latest_version }}"
+          VERSION="${LATEST_VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add lx-family/config.yaml lx-family/build.yaml lx-family/CHANGELOG.md
