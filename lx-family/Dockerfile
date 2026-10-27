@@ -12,6 +12,7 @@ RUN apt-get update \
 # Copy Nginx reverse proxy configuration and entrypoint script
 COPY rootfs/etc/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY run.sh /run.sh
+COPY addon-support.cjs /addon-support.cjs
 RUN chmod 755 /run.sh
 
 EXPOSE 3001

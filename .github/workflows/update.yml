@@ -22,7 +22,7 @@ jobs:
         id: upstream
         run: |
           LATEST_JSON=$(curl -sL https://api.github.com/repos/laxxx-lab/lx-family-planner/releases/latest)
-          LATEST_TAG=$(echo "$LATEST_JSON" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          LATEST_TAG=$(echo "$LATEST_JSON" | grep -m1 '"tag_name":' | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/')
 
           if [ -z "$LATEST_TAG" ]; then
             echo "Fehler: Konnte tag_name nicht ermitteln."
@@ -30,7 +30,11 @@ jobs:
           fi
 
           LATEST_VERSION="${LATEST_TAG#v}"
-          CURRENT_VERSION=$(grep '^version:' lx-family/config.yaml | awk '{print $2}' | tr -d '"')
+          if [[ ! "$LATEST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Ungültige Release-Version"
+            exit 1
+          fi
+          CURRENT_VERSION=$(bash scripts/upstream-version.sh)
 
           echo "Neueste Version im Original-Repo: ${LATEST_VERSION}"
           echo "Aktuelle Version im Add-on:        ${CURRENT_VERSION}"
@@ -75,6 +79,16 @@ jobs:
             sed '/^# Changelog/d' lx-family/CHANGELOG.md
           } > "$TEMP_FILE"
           mv "$TEMP_FILE" lx-family/CHANGELOG.md
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test optional integrations and update compatibility
+        run: |
+          for script in lx-family/run.sh update.sh scripts/upstream-version.sh; do bash -n "$script"; done
+          node --test tests/*.test.cjs
 
       - name: Set up QEMU
         if: steps.upstream.outputs.latest_version != steps.upstream.outputs.current_version || github.event_name == 'workflow_dispatch'

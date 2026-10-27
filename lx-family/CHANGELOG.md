@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.22.1-1
+
+- Optionale Firebase-Dienstkontodatei über den Add-on-Konfigurationsordner.
+- Persistenter optionaler APK-Ordner ohne Überschreiben vorhandener Dateien; Upstream-Auswahl nach versionCode bleibt unverändert.
+- Add-on-Revision und Upstream-Image-Version getrennt, damit automatische Updates erhalten bleiben.
+- Regressionstests vor automatischem Update-Commit und in PR-Builds.
+
 ## 1.22.1 (2026-10-26)
 
 ### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
