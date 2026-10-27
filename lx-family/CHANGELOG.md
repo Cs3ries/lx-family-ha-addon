@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.22.1-beta.1
+
+- Separat installierbarer Beta-Kanal über Repository-URL mit `#beta`.
+- Eigener Slug `lx_family_beta`, eigene Daten und Hostport 3002.
+- Experimentell markiert; Autostart standardmäßig aus.
+- Firebase-Anbindung aus PR #4, Original-Image weiterhin 1.22.1.
+- Kein automatischer Upstream-Update-Workflow im Beta-Kanal.
+
 ## 1.22.1-1
 
 - Optionale Firebase-Dienstkontodatei über den Add-on-Konfigurationsordner.

@@ -1,4 +1,4 @@
-# Home Assistant Add-on: LX Family
+# Home Assistant Add-on: LX Family Beta
 
 **LX Family** (vormals *LX Family Planner*) ist ein privates, selbst gehostetes Family OS für gemeinsame Termine, Aufgaben, Essensplan, Einkaufsliste, Chat und Kinderabenteuer.
 
@@ -7,7 +7,7 @@
 ## Erste Schritte
 
 1. **Add-on starten:** Klicke nach der Installation auf **Starten**. Aktiviere optional **In Seitenleiste anzeigen**.
-2. **Web-UI / Ingress öffnen:** Klicke in der Seitenleiste auf **Familienplaner** (Ingress) oder auf **Web-UI öffnen**. Für externe Apps oder direkten LAN-Zugriff ist das Webinterface auch direkt unter `http://<DEINE-HA-IP>:3001` erreichbar.
+2. **Web-UI / Ingress öffnen:** Klicke in der Seitenleiste auf **Familienplaner** (Ingress) oder auf **Web-UI öffnen**. Für externe Apps oder direkten LAN-Zugriff ist das Webinterface auch direkt unter `http://<DEINE-HA-IP>:3002` erreichbar.
 3. **Erste Familie anlegen:** Beim ersten Aufruf wirst du durch die Ersteinrichtung geführt und legst deine Familie sowie das Master-Passwort an.
 4. **Profile erstellen:** Lege Profile für Eltern, Kinder, Großeltern und ggf. Haustiere an.
 
@@ -54,22 +54,22 @@ LX Family kann deine Home Assistant Entitäten (Lichter, Schalter, Sensoren) dir
 ## Mobile App & Android
 
 LX Family verfügt über eine native Android-App (APK) sowie vollen PWA-Support (im mobilen Browser auf "Zum Startbildschirm hinzufügen" tippen).
-In der Android-App trägst du einfach die Adresse `http://<DEINE-HA-IP>:3001` (bzw. deine externe Domain bei Fernzugriff) ein.
+In der Android-App trägst du einfach die Adresse `http://<DEINE-HA-IP>:3002` (bzw. deine externe Domain bei Fernzugriff) ein.
 
 ---
 
-## Automatische Updates & Ingress-Sicherheit
+## Beta-Kanal
 
-Aktiviere in den Add-on-Einstellungen in Home Assistant den Schalter **"Automatische Aktualisierungen"** (Auto update).
-Sobald im Original-Repository (`laxxx-lab/lx-family-planner`) eine neue Version veröffentlicht wird, aktualisiert der GitHub Actions Workflow dieses Repositories die Version, und Home Assistant führt das Update vollautomatisch durch.
-
-Dank des integrierten Nginx Ingress Reverse Proxies werden alle Ingress-Pfade dynamisch zur Laufzeit umgeschrieben. Upstream-Codeänderungen oder neue Web-Assets funktionieren sofort und ohne manuelles Eingreifen, während deine Daten in `/data` dauerhaft sicher bleiben.
-
+Dies ist eine separate Beta mit eigenen Daten. Die Installation läuft standardmäßig
+auf Hostport **3002**, die stabile Version weiterhin auf 3001. Automatischer Start
+ist standardmäßig deaktiviert. Beta-Updates werden manuell auf dem Branch `beta`
+veröffentlicht; der automatische Upstream-Update-Workflow ist hier entfernt.
+Für den Test automatische Aktualisierungen ausgeschaltet lassen.
 
 ## Optional: Firebase für Android-Push
 
 Lege `firebase-service-account.json` im Add-on-Konfigurationsordner
-`/addon_configs/<Repository-ID>_lx_family/` ab (im Container: `/config`).
+`/addon_configs/<Beta-Repository-ID>_lx_family_beta/` ab (im Container: `/config`).
 Nutze einen Dateizugriff, der diesen Ordner freigibt, z. B. entsprechend
 konfiguriertes Samba oder Studio Code Server. Danach das Add-on neu starten.
 Der Schlüssel muss für den Backend-Prozess lesbar sein; nicht öffentlich

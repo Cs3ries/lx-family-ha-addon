@@ -1,26 +1,27 @@
-name: "LX Family"
-slug: "lx_family"
-version: "1.22.1-1"
-description: "Privates Family OS für Kalender, Aufgaben, Essen, Einkauf und Kinderabenteuer"
-url: "https://github.com/laxxx-lab/lx-family-planner"
+name: "LX Family Beta"
+slug: "lx_family_beta"
+version: "1.22.1-beta.1"
+description: "Beta: Firebase-Dateianbindung und persistente eigene APKs testen"
+url: "https://github.com/Cs3ries/lx-family-ha-addon/tree/beta"
 arch:
   - aarch64
   - amd64
 startup: "application"
-boot: "auto"
+boot: "manual"
+stage: "experimental"
 init: false
 ingress: true
 ingress_port: 3001
 panel_icon: "mdi:calendar-heart"
-panel_title: "Familienplaner"
+panel_title: "Familienplaner Beta"
 homeassistant_api: true
 map:
   - data:rw
   - addon_config:rw
 ports:
-  3001/tcp: 3001
+  3001/tcp: 3002
 ports_description:
-  3001/tcp: "Direkter Zugriff (z. B. für native Android-App)"
+  3001/tcp: "Beta: direkter Zugriff für Android (Standard-Hostport 3002)"
 options:
   app_secret: ""
   registration_mode: "first-family"
