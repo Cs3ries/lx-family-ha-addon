@@ -12,6 +12,7 @@ ENV_FILE="/tmp/ha_options.env"
 node - << 'EOF' > "$ENV_FILE"
 const fs = require('fs');
 const crypto = require('crypto');
+const { configureFirebase, configureApk } = require('/addon-support.cjs');
 
 let options = {};
 try {
@@ -59,6 +60,9 @@ const envs = {
   EVENT_REMINDER_INTERVAL_SECONDS: String(options.event_reminder_interval_seconds || 30),
   CALENDAR_ALLOW_PRIVATE_HOSTS: options.calendar_allow_private_hosts !== false ? 'true' : 'false'
 };
+
+Object.assign(envs, configureFirebase('/config'));
+configureApk('/config', '/app/data');
 
 for (const [key, val] of Object.entries(envs)) {
   const escaped = String(val).replace(/'/g, "'\\''");

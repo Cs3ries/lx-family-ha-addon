@@ -1,6 +1,6 @@
 name: "LX Family"
 slug: "lx_family"
-version: "1.22.1"
+version: "1.22.1-1"
 description: "Privates Family OS für Kalender, Aufgaben, Essen, Einkauf und Kinderabenteuer"
 url: "https://github.com/laxxx-lab/lx-family-planner"
 arch:
@@ -16,6 +16,7 @@ panel_title: "Familienplaner"
 homeassistant_api: true
 map:
   - data:rw
+  - addon_config:rw
 ports:
   3001/tcp: 3001
 ports_description:

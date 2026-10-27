@@ -64,3 +64,55 @@ Aktiviere in den Add-on-Einstellungen in Home Assistant den Schalter **"Automati
 Sobald im Original-Repository (`laxxx-lab/lx-family-planner`) eine neue Version veröffentlicht wird, aktualisiert der GitHub Actions Workflow dieses Repositories die Version, und Home Assistant führt das Update vollautomatisch durch.
 
 Dank des integrierten Nginx Ingress Reverse Proxies werden alle Ingress-Pfade dynamisch zur Laufzeit umgeschrieben. Upstream-Codeänderungen oder neue Web-Assets funktionieren sofort und ohne manuelles Eingreifen, während deine Daten in `/data` dauerhaft sicher bleiben.
+
+
+## Optional: Firebase für Android-Push
+
+Lege `firebase-service-account.json` im Add-on-Konfigurationsordner
+`/addon_configs/<Repository-ID>_lx_family/` ab (im Container: `/config`).
+Nutze einen Dateizugriff, der diesen Ordner freigibt, z. B. entsprechend
+konfiguriertes Samba oder Studio Code Server. Danach das Add-on neu starten.
+Der Schlüssel muss für den Backend-Prozess lesbar sein; nicht öffentlich
+freigeben, nicht ins Repository hochladen und niemals unter `apk/` ablegen.
+Die Datei wird lokal auf Dienstkonto-Felder und einen RSA-Schlüssel geprüft.
+Das prüft nicht die Berechtigungen oder Erreichbarkeit bei Google. Fehler werden
+ohne Schlüsselinhalte gemeldet; die optionale Anbindung wird dann übersprungen.
+Ohne Datei bleibt die bisherige Konfiguration erhalten.
+
+APK und Dienstkontoschlüssel müssen aus demselben Firebase-Projekt stammen.
+Für ein eigenes Projekt ist derzeit eine passend gebaute APK erforderlich.
+Diese Änderung konfiguriert die offizielle APK nicht dynamisch.
+
+Optional kann eine eigene `apk/latest.apk` samt passender `apk/version.json`
+im selben Konfigurationsordner abgelegt werden. Beim nächsten Start wird der
+Ordner nur eingebunden, wenn `latest.apk` vorhanden und `/app/data/apk` frei
+ist. Vorhandene Dateien oder fremde Links werden nicht ersetzt. Bei einem
+Konflikt erscheint eine Warnung. Zum Deaktivieren den eigenen APK-Ordner aus
+dem Konfigurationsordner verschieben und das Add-on neu starten.
+Wichtig: Upstream 1.22.1 wählt aus allen APKs die höchste `versionCode`
+(bei Gleichstand die neueste Datei). Der eigene Ordner hat keinen garantierten
+Vorrang. `version.json` muss `buildKind: "release"` und passende Metadaten
+enthalten. Ein neueres Original-Image kann wieder die offizielle APK anbieten.
+Die Persistenz ist daher keine Lösung für automatische Updates eigener APKs;
+dafür ist die dynamische Firebase-Konfiguration im Hauptprojekt erforderlich.
+Eigene APKs müssen selbst aktuell gehalten und mit demselben Android-Schlüssel
+signiert werden. Ein automatisches Server-Update baut keine eigene APK.
+
+Die Dateien im Konfigurationsordner bleiben über Image-Updates erhalten.
+Vor dem ersten produktiven Update ein HA-Backup erstellen und prüfen, dass
+auch der Add-on-Konfigurationsordner enthalten und wiederherstellbar ist.
+Interne Datenbank-Backups von LX ersetzen keine Sicherung dieser Dateien.
+
+## Versionierung für Maintainer
+
+`build.yaml` bestimmt die unveränderte Upstream-Image-Version. `config.yaml`
+kann zusätzlich eine Add-on-Revision tragen, etwa `1.22.1-1`. Beide Update-Wege
+vergleichen die neue Originalversion mit `build.yaml`, damit eine reine
+Add-on-Revision erhalten bleibt. Bei einem neuen Originalrelease werden beide
+Versionen auf dessen Versionsnummer gesetzt. Build CI liest ebenfalls
+`build.yaml`, nicht den Add-on-Revisionssuffix.
+
+Vor Freigabe auf einem separaten HA-Testsystem: Installation ohne Schlüssel,
+Push mit passender APK/Schlüssel, Ingress und direkter Zugriff, Neustart,
+Update und Wiederherstellung der persistenten Dateien prüfen. CI prüft die
+lokale Anbindung und Update-Logik, nicht Google-Zustellung oder HA selbst.

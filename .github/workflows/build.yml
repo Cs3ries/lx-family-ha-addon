@@ -5,11 +5,19 @@ on:
     branches: [ main ]
     paths:
       - 'lx-family/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'update.sh'
+      - '.github/workflows/update.yml'
       - '.github/workflows/build.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'lx-family/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'update.sh'
+      - '.github/workflows/update.yml'
       - '.github/workflows/build.yml'
   workflow_dispatch:
 
@@ -32,9 +40,19 @@ jobs:
       - name: Ermittle Basis-Version
         id: version
         run: |
-          CURRENT_VERSION=$(grep '^version:' lx-family/config.yaml | awk '{print $2}' | tr -d '"')
-          echo "Add-on Version: ${CURRENT_VERSION}"
+          CURRENT_VERSION=$(bash scripts/upstream-version.sh)
+          echo "Upstream-Version: ${CURRENT_VERSION}"
           echo "version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test optional integrations and update compatibility
+        run: |
+          for script in lx-family/run.sh update.sh scripts/upstream-version.sh; do bash -n "$script"; done
+          node --test tests/*.test.cjs
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
