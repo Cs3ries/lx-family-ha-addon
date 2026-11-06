@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.22.2 (2026-11-06)
+
+### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
+
+Find appointments faster and keep reminders reliable.
+
+- Search calendar event titles, locations and notes. Enter several words to narrow the result; matching past events are included automatically while the normal agenda, week and month views remain unchanged when the search is cleared.
+- Calendar import and export controls remain compact on smaller screens without losing their accessible labels.
+- Reminder catch-up runs retain their delivery markers, preventing the same overdue reminder from being delivered twice.
+- Includes a newly signed Android APK and the prepared 1.22.2 CasaOS package.
+
+#### Deutsch
+
+Termine schneller finden und Erinnerungen zuverlässig nachholen.
+
+- Die Kalendersuche durchsucht Titel, Orte und Notizen. Mehrere Wörter grenzen die Treffer ein; passende vergangene Termine erscheinen automatisch. Nach dem Löschen der Suche bleiben Agenda-, Wochen- und Monatsansicht unverändert.
+- Import und Export bleiben auf kleinen Bildschirmen kompakt und vollständig zugänglich.
+- Nachhol-Läufe für Erinnerungen behalten ihre Zustellmarkierung und senden denselben überfälligen Hinweis nicht doppelt.
+- Enthält eine neu signierte Android-APK und das vorbereitete CasaOS-Paket für 1.22.2.
+
+
+### Add-on Änderungen:
+- Automatische Aktualisierung auf LX Family 1.22.2 aus dem Original-Repository (laxxx-lab/lx-family-planner).
+- Ingress-Proxy Schicht (Nginx) und Pfad-Rewriting aktiv.
+
+
 ## 1.22.1 (2026-10-26)
 
 ### Neuheiten im Original-Release (laxxx-lab/lx-family-planner):
